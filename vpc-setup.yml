@@ -106,6 +106,7 @@
 
 
     - name: Set up public subnet route table
+      register: pubRT_out
       ec2_vpc_route_table:
         vpc_id: "{{ vpcout.vpc.id }}"
         region: "{{ region }}"
@@ -119,4 +120,4 @@
           - dest: 0.0.0.0/0
             gateway_id:  "{{ igw_out.gateway_id }}"
 
-        register: pubRT_out
+      
