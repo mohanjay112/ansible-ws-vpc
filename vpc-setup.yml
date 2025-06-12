@@ -1,125 +1,118 @@
-- name: VPC and Subnet Setup for Vprofile
-  hosts: localhost
+- hosts: localhost
   connection: local
-  gather_facts: false
-
+  gather_facts: False
   tasks:
-    - name: Load VPC Variables
+    - name: Import VPC Variables
       include_vars: vars/vpc_setup
-
-    - name: Load Bastion Variables
-      include_vars: vars/bastion_setup
-
-    - name: Debug Region
-      debug:
-        var: region
 
     - name: Create vprofile VPC
       ec2_vpc_net:
-        name: "{{ vpc_name }}"
-        cidr_block: "{{ vpcCidr }}"
-        region: "{{ region }}"
+        name: "{{vpc_name}}"
+        cidr_block: "{{vpcCidr}}"
+        region: "{{region}}"
         dns_support: yes
         dns_hostnames: yes
         tenancy: default
-        state: "{{ state }}"
+        state: "{{state}}"
       register: vpcout
 
-    - name: Create public subnet 1 in zone1
+  #  - debug:
+  #      var: vpcout
+
+    - name: create Public Subnet 1 in Zone1
       ec2_vpc_subnet:
-        vpc_id: "{{ vpcout.vpc.id }}"
+        vpc_id: "{{vpcout.vpc.id}}"
         region: "{{ region }}"
         az: "{{ zone1 }}"
-        state: "{{ state }}"
+        state: "{{state}}"
         cidr: "{{ PubSub1Cidr }}"
         map_public: yes
         resource_tags:
           Name: vprofile-pubsub1
       register: pubsub1_out
 
-    - name: Create public subnet 2 in zone2
+    - name: create Public subnet 2 in zone2
       ec2_vpc_subnet:
         vpc_id: "{{ vpcout.vpc.id }}"
         region: "{{ region }}"
         az: "{{ zone2 }}"
-        state: "{{ state }}"
+        state: "{{state}}"
         cidr: "{{ PubSub2Cidr }}"
         map_public: yes
         resource_tags:
-          Name: vprofile-pubsub2
+          Name: vprofile_pubsub2
       register: pubsub2_out
 
-    - name: Create public subnet 3 in zone3
+    - name: create Public subnet 3 in zone3
       ec2_vpc_subnet:
         vpc_id: "{{ vpcout.vpc.id }}"
         region: "{{ region }}"
         az: "{{ zone3 }}"
-        state: "{{ state }}"
+        state: "{{state}}"
         cidr: "{{ PubSub3Cidr }}"
         map_public: yes
         resource_tags:
-          Name: vprofile-pubsub3
+          Name: vprofile_pubsub3
       register: pubsub3_out
 
-    - name: Create Private subnet 1 in zone1
+    - name: create Private Subnet 1 in Zone1
       ec2_vpc_subnet:
         vpc_id: "{{ vpcout.vpc.id }}"
         region: "{{ region }}"
         az: "{{ zone1 }}"
-        state: "{{ state }}"
+        state: "{{state}}"
         cidr: "{{ PrivSub1Cidr }}"
         resource_tags:
-          Name: vprofile-privsub1
+          Name: vprofile_privsub1
       register: privsub1_out
 
-    - name: Create Private subnet 2 in zone2
+    - name: create Private subnet 2 in zone2
       ec2_vpc_subnet:
         vpc_id: "{{ vpcout.vpc.id }}"
         region: "{{ region }}"
         az: "{{ zone2 }}"
-        state: "{{ state }}"
+        state: "{{state}}"
         cidr: "{{ PrivSub2Cidr }}"
         resource_tags:
-          Name: vprofile-privsub2
+          Name: vprofile_privsub2
       register: privsub2_out
 
-    - name: Create Private subnet 3 in zone3
+
+
+    - name: create Private subnet 3 in zone3
       ec2_vpc_subnet:
         vpc_id: "{{ vpcout.vpc.id }}"
         region: "{{ region }}"
         az: "{{ zone3 }}"
-        state: "{{ state }}"
+        state: "{{state}}"
         cidr: "{{ PrivSub3Cidr }}"
         resource_tags:
-          Name: vprofile-privsub3
+          Name: vprofile_privsub3
       register: privsub3_out
 
-
-    - name: internet gateway Setup
+    - name: Internet Gateway Setup
       ec2_vpc_igw:
         vpc_id: "{{ vpcout.vpc.id }}"
         region: "{{ region }}"
-        state: "{{ state }}"
+        state: "{{state}}"
         resource_tags:
           Name: vprofile_IGW
-      register: igw_out 
-
+      register: igw_out
 
     - name: Set up public subnet route table
-      register: pubRT_out
       ec2_vpc_route_table:
-        vpc_id: "{{ vpcout.vpc.id }}"
+        vpc_id: "{{vpcout.vpc.id}}"
         region: "{{ region }}"
         tags:
-          Name: Vprofile-PubRT
+          Name: VProfile-PubRT
         subnets:
           - "{{pubsub1_out.subnet.id}}"
           - "{{pubsub2_out.subnet.id}}"
           - "{{pubsub3_out.subnet.id}}"
-        routes: 
+        routes:
           - dest: 0.0.0.0/0
-            gateway_id:  "{{ igw_out.gateway_id }}"
-
+            gateway_id: "{{igw_out.gateway_id}}"
+      register: pubRT_out
 
     - name: Create new nat gateway and allocate new EIP if a nat gateway does not yet exist in the subnet.
       ec2_vpc_nat_gateway:
@@ -179,34 +172,4 @@
          content: "vpcid: {{ vpcout.vpc.id }}\npubsub1id: {{ pubsub1_out.subnet.id }}\npubsub2id: {{ pubsub2_out.subnet.id }}\npubsub3id: {{ pubsub3_out.subnet.id }}\nprivsub1id: {{ privsub1_out.subnet.id }}\nprivsub2id: {{ privsub2_out.subnet.id }}\nprivsub3id: {{ privsub3_out.subnet.id }}\nigwid: {{ igw_out.gateway_id }}\npubRTid: {{ pubRT_out.route_table.id }}\nNATGWid: {{ NATGW_out.nat_gateway_id }}\nprivRTid: {{ privRT_out.route_table.id }}\n"
          dest: vars/output_vars
 
-    - name: Create Sec Grp for bastion host
-      ec2_group:
-        name: Bastion-host-sg
-        description: Allow port 22 from everywhere and all port within sg
-        region: "{{region}}"
-        vpc_id: "{{vpcid}}"
-        rules:
-          - proto: tcp
-            from_port: 22
-            to_port: 22
-            cidr_ip: "{{MYIP}}"
-      register: BastionSG_out
 
-    - name: Creating Bastion Host
-      amazon.aws.ec2_instance:
-        name: "Bastion_host"
-        key_name: vprofile-key
-        region: "{{region}}"
-        instance_type: t2.micro
-        image_id: "{{ bastion_ami }}"
-        wait: yes
-        wait_timeout: 300
-        tags:
-          Name: "Bastion_host"
-          Project: Vprofile
-          Owner: DevOps Team
-        security_groups:
-          - "{{ BastionSG_out.group_name }}"
-        state: present
-        vpc_subnet_id: "{{pubsub1id}}"
-      register: bastionHost_out
