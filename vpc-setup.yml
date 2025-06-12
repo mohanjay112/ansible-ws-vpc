@@ -207,5 +207,5 @@
           Owner: DevOps Team
         vpc_subnet_id: "{{ pubsub1id }}"
         security_group_ids:
-          - "{{ BastionSG_out.group_id }}"
+          - "{{ BastionSG_out.group_name }}"
       register: bastionHost_out
