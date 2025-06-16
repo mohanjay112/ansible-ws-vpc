@@ -150,8 +150,7 @@
           Name: "db01"
           Project: Vprofile
           Owner: DevOps Team
-        security_group: 
-          - "{{ vproStackSG_out.group_id }}"
+        security_group: "{{ vproStackSG_out.group_id }}"
         vpc_subnet_id: "{{ privsub1id }}"
       register: db01_out
     - debug:
