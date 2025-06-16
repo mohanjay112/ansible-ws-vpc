@@ -7,8 +7,8 @@
     - name: Load VPC Variables
       include_vars: vars/vpc_setup
 
-    - name: Load Bastion Variables
-      include_vars: vars/bastion_setup
+#    - name: Load Bastion Variables
+#     include_vars: vars/bastion_setup
 
     - name: Debug Region
       debug:
