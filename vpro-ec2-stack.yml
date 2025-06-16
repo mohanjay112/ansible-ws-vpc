@@ -49,13 +49,13 @@
           - proto: tcp
             from_port: 80
             to_port: 80
-            group_id: "{{vproELB-sg_out.group_id}}"
+            group_id: "{{ vproELBSG_out.group_id }}"
 
 
 
           - proto: tcp
             from_port: 22
             to_port: 22
-            group_id: "{{BastionSGid}}"
+            group_id: "{{ BastionSGid }}"
 
         register: vproStackSG_out 
