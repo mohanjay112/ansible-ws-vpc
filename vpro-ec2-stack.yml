@@ -167,17 +167,17 @@
         state: present 
         instance_ids:
           - "{{ web01_out.instances[0].instance_id }}"
-      purge_instance_ids: true
-      security_group: "{{ vproELBSG_out.group_id }}"
-      subnets:
-        - "{{ pubsub1id }}"
-        - "{{ pubsub2id }}"
-        - "{{ pubsub3id }}"
+        purge_instance_ids: true
+        security_group: "{{ vproELBSG_out.group_id }}"
+        subnets:
+          - "{{ pubsub1id }}"
+          - "{{ pubsub2id }}"
+          - "{{ pubsub3id }}"
 
-      listeners:
-        - protocol: http
-          load_balancer_port: 80
-          instance_port: 80
+        listeners:
+          - protocol: http
+            load_balancer_port: 80
+            instance_port: 80
 
     - name: Insert/update Hosts IP & Name in file provision-stack/group_vars/hostsip
       blockinfile: 
