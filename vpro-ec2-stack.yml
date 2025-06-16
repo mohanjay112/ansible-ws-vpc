@@ -59,3 +59,14 @@
             group_id: "{{ BastionSGid }}"
 
         register: vproStackSG_out 
+
+    - name: Update security group with itsown sg id 
+      ec2_group: 
+        name: vproStack-sg
+        description: allowport 22from everywhere and all  port within sg 
+        region: "{{region}}"
+        vpc_id: "{{vpcid}}"
+        purge_rules: no
+        rules: 
+          - proto: all
+            group_id: "{{ vproStackSG_out.group_id }}"
