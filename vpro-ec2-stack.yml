@@ -161,7 +161,7 @@
 
 
     - name: Create Classic ELB for web01
-      amazon.aws.elb:
+      amazon.aws.elb_classic_lb:
         name: vprofile-elb
         region:  "{{region}}"
         state: present 
