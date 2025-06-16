@@ -194,9 +194,6 @@
         dest: provision-stack/loginkey_vpro.pem
         mode: '0400'
 
-
-    - name: Insert/update Inventory file provision-stack/Inventory-vpro
-
     - name: Ensure provision-stack directory exists
       file:
         path: provision-stack
@@ -209,8 +206,7 @@
         state: touch
 
 
-
-
+    - name: Insert/update Inventory file provision-stack/Inventory-vpro
       blockinfile:
         path: provision-stack/inventory-vpro
         block: |
