@@ -196,6 +196,21 @@
 
 
     - name: Insert/update Inventory file provision-stack/Inventory-vpro
+
+    - name: Ensure provision-stack directory exists
+      file:
+        path: provision-stack
+        state: directory
+        mode: '0755'
+
+    - name: Ensure inventory file exists
+      file:
+        path: provision-stack/inventory-vpro
+        state: touch
+
+
+
+
       blockinfile:
         path: provision-stack/inventory-vpro
         block: |
