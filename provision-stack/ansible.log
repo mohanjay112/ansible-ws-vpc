@@ -1,0 +1,152 @@
+2025-06-17 11:53:37,109 p=8837 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with yaml
+plugin: We were unable to read either as JSON nor YAML, these are the errors we got from each:
+JSON: Expecting value: line 1 column 1 (char 0)  Syntax Error while loading YAML.   could not find
+expected ':'  The error appears to be in '/root/ansible-ws-vpc/provision-stack/inventory-vpro':
+line 10, column 1, but may be elsewhere in the file depending on the exact syntax problem.  The
+offending line appears to be:   [websrvgrp] ^ here
+
+2025-06-17 11:53:37,110 p=8837 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with ini plugin:
+Invalid host pattern 'web01_ip:' supplied, ending in ':' is not allowed, this character is
+reserved to provide a port.
+
+2025-06-17 11:53:37,110 p=8837 u=root n=ansible | [WARNING]: Unable to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro as an inventory
+source
+
+2025-06-17 11:53:37,110 p=8837 u=root n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-06-17 11:53:37,118 p=8837 u=root n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit
+localhost does not match 'all'
+
+2025-06-17 11:53:37,312 p=8837 u=root n=ansible | PLAY [Generate artifact, copy artifact & sql file to files directory] *****************************
+2025-06-17 11:53:37,328 p=8837 u=root n=ansible | TASK [Gathering Facts] ****************************************************************************
+2025-06-17 11:53:38,334 p=8837 u=root n=ansible | ok: [localhost]
+2025-06-17 11:53:38,351 p=8837 u=root n=ansible | TASK [Install jdk, maven, git] ********************************************************************
+2025-06-17 11:53:38,860 p=8837 u=root n=ansible | [WARNING]: Updating cache and auto-installing missing dependency: python3-apt
+
+2025-06-17 11:53:38,861 p=8837 u=root n=ansible | failed: [localhost] (item=git) => {"ansible_loop_var": "item", "changed": false, "cmd": "apt-get update", "item": "git", "msg": "[Errno 2] No such file or directory: b'apt-get'", "rc": 2, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+2025-06-17 11:53:39,192 p=8837 u=root n=ansible | failed: [localhost] (item=openjdk-11-jdk) => {"ansible_loop_var": "item", "changed": false, "cmd": "apt-get update", "item": "openjdk-11-jdk", "msg": "[Errno 2] No such file or directory: b'apt-get'", "rc": 2, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+2025-06-17 11:53:39,522 p=8837 u=root n=ansible | failed: [localhost] (item=maven) => {"ansible_loop_var": "item", "changed": false, "cmd": "apt-get update", "item": "maven", "msg": "[Errno 2] No such file or directory: b'apt-get'", "rc": 2, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+2025-06-17 11:53:39,526 p=8837 u=root n=ansible | PLAY RECAP ****************************************************************************************
+2025-06-17 11:53:39,526 p=8837 u=root n=ansible | localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:02:17,240 p=9257 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with yaml
+plugin: We were unable to read either as JSON nor YAML, these are the errors we got from each:
+JSON: Expecting value: line 1 column 1 (char 0)  Syntax Error while loading YAML.   could not find
+expected ':'  The error appears to be in '/root/ansible-ws-vpc/provision-stack/inventory-vpro':
+line 10, column 1, but may be elsewhere in the file depending on the exact syntax problem.  The
+offending line appears to be:   [websrvgrp] ^ here
+
+2025-06-17 12:02:17,240 p=9257 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with ini plugin:
+Invalid host pattern 'web01_ip:' supplied, ending in ':' is not allowed, this character is
+reserved to provide a port.
+
+2025-06-17 12:02:17,240 p=9257 u=root n=ansible | [WARNING]: Unable to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro as an inventory
+source
+
+2025-06-17 12:02:17,240 p=9257 u=root n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-06-17 12:02:17,243 p=9257 u=root n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit
+localhost does not match 'all'
+
+2025-06-17 12:02:17,329 p=9257 u=root n=ansible | PLAY [Generate artifact, copy artifact & sql file to files directory] *****************************
+2025-06-17 12:02:17,339 p=9257 u=root n=ansible | TASK [Gathering Facts] ****************************************************************************
+2025-06-17 12:02:18,250 p=9257 u=root n=ansible | ok: [localhost]
+2025-06-17 12:02:18,267 p=9257 u=root n=ansible | TASK [Install jdk, maven, git] ********************************************************************
+2025-06-17 12:02:21,829 p=9257 u=root n=ansible | changed: [localhost] => (item=git)
+2025-06-17 12:02:23,510 p=9257 u=root n=ansible | failed: [localhost] (item=openjdk-11-jdk) => {"ansible_loop_var": "item", "changed": false, "failures": ["No package openjdk-11-jdk available."], "item": "openjdk-11-jdk", "msg": "Failed to install some of the specified packages", "rc": 1, "results": []}
+2025-06-17 12:02:36,734 p=9257 u=root n=ansible | changed: [localhost] => (item=maven)
+2025-06-17 12:02:36,738 p=9257 u=root n=ansible | PLAY RECAP ****************************************************************************************
+2025-06-17 12:02:36,739 p=9257 u=root n=ansible | localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:03:31,704 p=11103 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with yaml
+plugin: We were unable to read either as JSON nor YAML, these are the errors we got from each:
+JSON: Expecting value: line 1 column 1 (char 0)  Syntax Error while loading YAML.   could not find
+expected ':'  The error appears to be in '/root/ansible-ws-vpc/provision-stack/inventory-vpro':
+line 10, column 1, but may be elsewhere in the file depending on the exact syntax problem.  The
+offending line appears to be:   [websrvgrp] ^ here
+
+2025-06-17 12:03:31,705 p=11103 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with ini plugin:
+Invalid host pattern 'web01_ip:' supplied, ending in ':' is not allowed, this character is
+reserved to provide a port.
+
+2025-06-17 12:03:31,705 p=11103 u=root n=ansible | [WARNING]: Unable to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro as an inventory
+source
+
+2025-06-17 12:03:31,705 p=11103 u=root n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-06-17 12:03:31,708 p=11103 u=root n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit
+localhost does not match 'all'
+
+2025-06-17 12:03:31,797 p=11103 u=root n=ansible | PLAY [Generate artifact, copy artifact & sql file to files directory] *****************************
+2025-06-17 12:03:31,805 p=11103 u=root n=ansible | TASK [Gathering Facts] ****************************************************************************
+2025-06-17 12:03:32,724 p=11103 u=root n=ansible | ok: [localhost]
+2025-06-17 12:03:32,742 p=11103 u=root n=ansible | TASK [Install jdk, maven, git] ********************************************************************
+2025-06-17 12:03:34,045 p=11103 u=root n=ansible | ok: [localhost] => (item=git)
+2025-06-17 12:03:42,874 p=11103 u=root n=ansible | changed: [localhost] => (item=java-11-amazon-corretto)
+2025-06-17 12:03:44,184 p=11103 u=root n=ansible | ok: [localhost] => (item=maven)
+2025-06-17 12:03:44,192 p=11103 u=root n=ansible | TASK [Clone source code from GitHub] **************************************************************
+2025-06-17 12:03:51,784 p=11103 u=root n=ansible | changed: [localhost]
+2025-06-17 12:03:51,793 p=11103 u=root n=ansible | TASK [Run mvn install to build artifact] **********************************************************
+2025-06-17 12:04:31,813 p=11103 u=root n=ansible | changed: [localhost]
+2025-06-17 12:04:31,873 p=11103 u=root n=ansible | TASK [Ensure files directory exists] **************************************************************
+2025-06-17 12:04:32,325 p=11103 u=root n=ansible | ok: [localhost]
+2025-06-17 12:04:32,334 p=11103 u=root n=ansible | TASK [Copy WAR artifact to files directory] *******************************************************
+2025-06-17 12:04:32,928 p=11103 u=root n=ansible | changed: [localhost] => (item=/root/ansible-ws-vpc/provision-stack/Vprofile-repo/target/vprofile-v2.war)
+2025-06-17 12:04:32,940 p=11103 u=root n=ansible | TASK [Copy SQL file to files directory] ***********************************************************
+2025-06-17 12:04:33,155 p=11103 u=root n=ansible | changed: [localhost]
+2025-06-17 12:04:33,178 p=11103 u=root n=ansible | PLAY RECAP ****************************************************************************************
+2025-06-17 12:04:33,178 p=11103 u=root n=ansible | localhost                  : ok=7    changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:06:03,403 p=11495 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with yaml
+plugin: We were unable to read either as JSON nor YAML, these are the errors we got from each:
+JSON: Expecting value: line 1 column 1 (char 0)  Syntax Error while loading YAML.   could not find
+expected ':'  The error appears to be in '/root/ansible-ws-vpc/provision-stack/inventory-vpro':
+line 10, column 1, but may be elsewhere in the file depending on the exact syntax problem.  The
+offending line appears to be:   [websrvgrp] ^ here
+
+2025-06-17 12:06:03,403 p=11495 u=root n=ansible | [WARNING]:  * Failed to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro with ini plugin:
+Invalid host pattern 'web01_ip:' supplied, ending in ':' is not allowed, this character is
+reserved to provide a port.
+
+2025-06-17 12:06:03,403 p=11495 u=root n=ansible | [WARNING]: Unable to parse /root/ansible-ws-vpc/provision-stack/inventory-vpro as an inventory
+source
+
+2025-06-17 12:06:03,403 p=11495 u=root n=ansible | [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2025-06-17 12:06:03,411 p=11495 u=root n=ansible | [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit
+localhost does not match 'all'
+
+2025-06-17 12:06:03,603 p=11495 u=root n=ansible | PLAY [Set host to ip mapping in /etc/hosts file of all the instances in the stack] ****************
+2025-06-17 12:06:03,604 p=11495 u=root n=ansible | skipping: no hosts matched
+2025-06-17 12:06:03,604 p=11495 u=root n=ansible | PLAY RECAP ****************************************************************************************
+2025-06-17 12:15:13,461 p=11812 u=root n=ansible | PLAY [Set host to ip mapping in /etc/hosts file of all the instances in the stack] ****************
+2025-06-17 12:15:13,476 p=11812 u=root n=ansible | TASK [Gathering Facts] ****************************************************************************
+2025-06-17 12:15:15,015 p=11812 u=root n=ansible | [WARNING]: Platform linux on host cntl is using the discovered Python interpreter at
+/usr/bin/python3.9, but future installation of another Python interpreter could change the meaning
+of that path. See https://docs.ansible.com/ansible-
+core/2.15/reference_appendices/interpreter_discovery.html for more information.
+
+2025-06-17 12:15:15,017 p=11812 u=root n=ansible | ok: [cntl]
+2025-06-17 12:15:15,415 p=11812 u=root n=ansible | ok: [web01]
+2025-06-17 12:15:16,076 p=11812 u=root n=ansible | ok: [app01]
+2025-06-17 12:15:16,133 p=11812 u=root n=ansible | ok: [mc01]
+2025-06-17 12:15:16,137 p=11812 u=root n=ansible | ok: [rmq01]
+2025-06-17 12:15:17,432 p=11812 u=root n=ansible | ok: [db01]
+2025-06-17 12:15:17,498 p=11812 u=root n=ansible | TASK [Import VPC setup Variable] ******************************************************************
+2025-06-17 12:15:17,539 p=11812 u=root n=ansible | ok: [cntl]
+2025-06-17 12:15:17,566 p=11812 u=root n=ansible | ok: [web01]
+2025-06-17 12:15:17,587 p=11812 u=root n=ansible | ok: [app01]
+2025-06-17 12:15:17,603 p=11812 u=root n=ansible | ok: [rmq01]
+2025-06-17 12:15:17,604 p=11812 u=root n=ansible | ok: [mc01]
+2025-06-17 12:15:17,612 p=11812 u=root n=ansible | ok: [db01]
+2025-06-17 12:15:17,619 p=11812 u=root n=ansible | TASK [Update hosts file for all the hosts] ********************************************************
+2025-06-17 12:15:18,358 p=11812 u=root n=ansible | changed: [cntl]
+2025-06-17 12:15:18,424 p=11812 u=root n=ansible | changed: [app01]
+2025-06-17 12:15:18,427 p=11812 u=root n=ansible | changed: [mc01]
+2025-06-17 12:15:18,433 p=11812 u=root n=ansible | changed: [rmq01]
+2025-06-17 12:15:18,438 p=11812 u=root n=ansible | changed: [web01]
+2025-06-17 12:15:18,744 p=11812 u=root n=ansible | changed: [db01]
+2025-06-17 12:15:18,862 p=11812 u=root n=ansible | PLAY RECAP ****************************************************************************************
+2025-06-17 12:15:18,862 p=11812 u=root n=ansible | app01                      : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:15:18,862 p=11812 u=root n=ansible | cntl                       : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:15:18,862 p=11812 u=root n=ansible | db01                       : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:15:18,862 p=11812 u=root n=ansible | mc01                       : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:15:18,862 p=11812 u=root n=ansible | rmq01                      : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2025-06-17 12:15:18,862 p=11812 u=root n=ansible | web01                      : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
