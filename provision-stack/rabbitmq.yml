@@ -1,61 +1,52 @@
 ---
-- name: Install RabbitMQ with Erlang on Noble
+- name: Install & Setup RabbitMQ with user
   hosts: rmqsrvgrp
   become: yes
   gather_facts: yes
 
   tasks:
 
-    - name: Print OS version
+    - name: Print detected OS info
       debug:
-        msg: "{{ ansible_distribution_release }} - {{ ansible_distribution_version }}"
+        msg: "OS is {{ ansible_distribution }} {{ ansible_distribution_version }} ({{ ansible_distribution_release }})"
+
+    - name: Ensure APT cache is updated
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
 
     - name: Install prerequisites
       apt:
-        name:
-          - curl
-          - gnupg
-          - apt-transport-https
-          - lsb-release
+        name: "{{ item }}"
         state: present
-        update_cache: yes
+      loop:
+        - curl
+        - gnupg
+        - software-properties-common
+        - apt-transport-https
+        - ca-certificates
 
-    - name: Remove old Erlang APT source if exists
-      file:
-        path: /etc/apt/sources.list.d/erlang.list
-        state: absent
+    - name: Add RabbitMQ official public key
+      get_url:
+        url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
+        dest: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+        mode: '0644'
 
-    - name: Add Erlang repository key
-      shell: |
-        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang.gpg
-      args:
-        creates: /usr/share/keyrings/erlang.gpg
-
-    - name: Add Erlang repo for jammy (works for noble)
+    - name: Add RabbitMQ APT repository (use jammy for noble)
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/erlang.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
-        state: present
-        filename: erlang
-        update_cache: yes
-
-    - name: Add RabbitMQ signing key
-      shell: |
-        curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq.gpg
-      args:
-        creates: /usr/share/keyrings/rabbitmq.gpg
-
-    - name: Add RabbitMQ repo (use jammy for noble)
-      apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
-        state: present
+        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
         filename: rabbitmq
+        state: present
         update_cache: yes
 
-    - name: Update apt cache
-      apt:
-        update_cache: yes
+    - name: Update apt cache with shell (fallback)
+      shell: apt-get update
+      register: apt_output
+      retries: 3
+      delay: 5
+      until: apt_output.rc == 0
 
-    - name: Install Erlang and RabbitMQ
+    - name: Install Erlang and RabbitMQ with retry
       apt:
         name:
           - erlang-base
@@ -75,7 +66,12 @@
           - erlang-tools
           - erlang-xmerl
           - rabbitmq-server
+
         state: present
+      register: install_output
+      retries: 3
+      delay: 10
+      until: install_output is succeeded
 
     - name: Ensure RabbitMQ is started and enabled
       service:
@@ -90,12 +86,6 @@
         dest: /etc/rabbitmq/rabbitmq.config
       notify: Restart RabbitMQ
 
-    - name: Enable management plugin
-      rabbitmq_plugin:
-        names: rabbitmq_management
-        state: enabled
-      notify: Restart RabbitMQ
-
     - name: Create RabbitMQ user
       rabbitmq_user:
         user: test
@@ -106,6 +96,13 @@
         tags:
           - administrator
         state: present
+      notify: Restart RabbitMQ
+
+    - name: Enable management plugin
+      rabbitmq_plugin:
+        names: rabbitmq_management
+        state: enabled
+      notify: Restart RabbitMQ
 
   handlers:
     - name: Restart RabbitMQ
