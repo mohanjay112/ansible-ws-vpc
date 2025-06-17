@@ -36,10 +36,15 @@
       args:
         creates: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
 
+    - name: Install software-properties-common (for add-apt-repository)
+      apt:
+        name: software-properties-common
+        state: present
+
     - name: Add Erlang APT repository (using Jammy for Noble)
-      lineinfile:
-        path: /etc/apt/sources.list.d/erlang.list
-        line: "deb [signed-by=/usr/share/keyrings/erlang-keyring.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
+      apt_repository:
+        repo: "ppa:rabbitmq/rabbitmq-erlang"
+        state: present
         create: yes
 
     - name: Add RabbitMQ APT repository (using Jammy for Noble)
