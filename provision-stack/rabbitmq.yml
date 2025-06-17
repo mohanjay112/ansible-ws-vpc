@@ -32,11 +32,6 @@
         state: present
         update_cache: yes
 
-    - name: Add RabbitMQ Erlang PPA (official maintained)
-      apt_repository:
-        repo: "ppa:rabbitmq/rabbitmq-erlang"
-        state: present
-
     - name: Refresh apt cache with retries
       apt:
         update_cache: yes
