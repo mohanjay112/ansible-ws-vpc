@@ -1,7 +1,7 @@
----
 - name: Install & Setup RabbitMQ with user
   hosts: rmqsrvgrp
   become: yes
+
   tasks:
     - name: Update apt cache (clear and refresh)
       apt:
@@ -26,7 +26,7 @@
       args:
         creates: /usr/share/keyrings/erlang-keyring.gpg
 
-    - name: Add RabbitMQ key (Cloudsmith key)
+    - name: Download RabbitMQ public key
       get_url:
         url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
         dest: /tmp/rabbitmq.gpg.key
@@ -36,31 +36,32 @@
       args:
         creates: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
 
-          
+    - name: Add Erlang APT repository (using Jammy for Noble)
+      lineinfile:
+        path: /etc/apt/sources.list.d/erlang.list
+        line: "deb [signed-by=/usr/share/keyrings/erlang-keyring.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
+        create: yes
 
-
-    - name: Add Erlang APT repository (force jammy for noble)
-      apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/erlang-keyring.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
-        filename: "erlang"
-        state: present
-
-    - name: Add RabbitMQ APT repository (force jammy for noble)
-      apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
-        filename: "rabbitmq"
-        state: present
+    - name: Add RabbitMQ APT repository (using Jammy for Noble)
+      lineinfile:
+        path: /etc/apt/sources.list.d/rabbitmq.list
+        line: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
+        create: yes
 
     - name: Refresh apt cache
       apt:
         update_cache: yes
 
-    - name: Install Erlang & RabbitMQ
+    - name: Install Erlang & RabbitMQ with retry
       apt:
         name:
           - erlang
           - rabbitmq-server
         state: present
+      register: install_output
+      retries: 3
+      delay: 10
+      until: install_output is succeeded
 
     - name: Start & enable RabbitMQ
       service:
