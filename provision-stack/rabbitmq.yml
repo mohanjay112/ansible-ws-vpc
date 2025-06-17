@@ -3,7 +3,7 @@
   become: yes
 
   tasks:
-    - name: Update apt cache (clear and refresh)
+    - name: Ensure APT cache is updated
       apt:
         update_cache: yes
         cache_valid_time: 3600
@@ -15,49 +15,27 @@
       loop:
         - curl
         - gnupg
+        - software-properties-common
+        - apt-transport-https
+        - ca-certificates
 
-    - name: Download Erlang public key
-      get_url:
-        url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
-        dest: /tmp/erlang_solutions.asc
-
-    - name: Convert Erlang key to keyring format
-      command: gpg --dearmor -o /usr/share/keyrings/erlang-keyring.gpg /tmp/erlang_solutions.asc
-      args:
-        creates: /usr/share/keyrings/erlang-keyring.gpg
-
-    - name: Download RabbitMQ public key
+    - name: Add RabbitMQ official public key
       get_url:
         url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
-        dest: /tmp/rabbitmq.gpg.key
+        dest: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+        mode: '0644'
 
-    - name: Convert RabbitMQ key to keyring format
-      command: gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg /tmp/rabbitmq.gpg.key
-      args:
-        creates: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
-
-    - name: Install software-properties-common (for add-apt-repository)
-      apt:
-        name: software-properties-common
+    - name: Add RabbitMQ APT repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
+        filename: rabbitmq
         state: present
+        update_cache: yes
 
-    - name: Add Erlang APT repository (using Jammy for Noble)
+    - name: Add RabbitMQ Erlang PPA (official maintained)
       apt_repository:
         repo: "ppa:rabbitmq/rabbitmq-erlang"
         state: present
-        create: yes
-
-    - name: Add RabbitMQ APT repository (using Jammy for Noble)
-      lineinfile:
-        path: /etc/apt/sources.list.d/rabbitmq.list
-        line: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
-        create: yes
-
-    - name: Clean up APT lists to avoid lock issues
-      file:
-        path: /var/lib/apt/lists/lock
-        state: absent
-
 
     - name: Refresh apt cache with retries
       apt:
@@ -67,7 +45,7 @@
       delay: 5
       until: apt_update is succeeded
 
-    - name: Install Erlang & RabbitMQ with retry
+    - name: Install Erlang and RabbitMQ with retry
       apt:
         name:
           - erlang
@@ -78,7 +56,7 @@
       delay: 10
       until: install_output is succeeded
 
-    - name: Start & enable RabbitMQ
+    - name: Ensure RabbitMQ is started and enabled
       service:
         name: rabbitmq-server
         state: started
