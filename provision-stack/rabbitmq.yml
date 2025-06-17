@@ -1,8 +1,15 @@
+---
 - name: Install & Setup RabbitMQ with user
   hosts: rmqsrvgrp
   become: yes
+  gather_facts: yes
 
   tasks:
+
+    - name: Print detected OS info
+      debug:
+        msg: "OS is {{ ansible_distribution }} {{ ansible_distribution_version }} ({{ ansible_distribution_release }})"
+
     - name: Ensure APT cache is updated
       apt:
         update_cache: yes
@@ -25,7 +32,7 @@
         dest: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
         mode: '0644'
 
-    - name: Add RabbitMQ APT repository
+    - name: Add RabbitMQ APT repository (use jammy for noble)
       apt_repository:
         repo: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
         filename: rabbitmq
