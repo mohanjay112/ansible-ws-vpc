@@ -26,13 +26,22 @@
         url: https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
         state: present
 
+    - name: Add RabbitMQ public key (Cloudsmith)
+      ansible.builtin.shell: |
+        curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+      args: 
+         warn: false
+
+    - name: Add Erlang public key
+      ansible.builtin.shell: |
+        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang-keyring.gpg
+      args:
+        warn: false
+
     - name: Add RabbitMQ and Erlang apt repositories
       apt_repository:
-        repo: "{{ item }}"
+        repo: "deb [signed-by=/usr/share/keyrings/erlang-keyring.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
         state: present
-      loop:
-        - "deb https://packages.erlang-solutions.com/ubuntu jammy contrib"
-        - "deb https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
 
     - name: Refresh apt cache
       apt:
