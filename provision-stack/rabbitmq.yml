@@ -16,9 +16,15 @@
         - curl
         - gnupg
 
-    - name: Add Erlang repo key (and save to keyring)
-      shell: |
-        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang-keyring.gpg
+    - name: Download Erlang public key
+      get_url:
+        url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
+        dest: /tmp/erlang_solutions.asc
+
+    - name: Convert Erlang key to keyring format
+      command: gpg --dearmor -o /usr/share/keyrings/erlang-keyring.gpg /tmp/erlang_solutions.asc
+      args:
+        creates: /usr/share/keyrings/erlang-keyring.gpg
 
     - name: Add RabbitMQ key (Cloudsmith key)
       shell: |
