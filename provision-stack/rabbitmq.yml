@@ -1,61 +1,75 @@
 ---
-- name: Install & Setup RabbitMQ with user
+- name: Install RabbitMQ with Erlang on Noble
   hosts: rmqsrvgrp
   become: yes
   gather_facts: yes
 
   tasks:
 
-    - name: Print detected OS info
+    - name: Print OS version
       debug:
-        msg: "OS is {{ ansible_distribution }} {{ ansible_distribution_version }} ({{ ansible_distribution_release }})"
-
-    - name: Ensure APT cache is updated
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
+        msg: "{{ ansible_distribution_release }} - {{ ansible_distribution_version }}"
 
     - name: Install prerequisites
       apt:
-        name: "{{ item }}"
+        name:
+          - curl
+          - gnupg
+          - apt-transport-https
+          - lsb-release
         state: present
-      loop:
-        - curl
-        - gnupg
-        - software-properties-common
-        - apt-transport-https
-        - ca-certificates
 
-    - name: Add RabbitMQ official public key
-      get_url:
-        url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
-        dest: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
-        mode: '0644'
+    - name: Add Erlang repository key
+      shell: |
+        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang.gpg
+      args:
+        creates: /usr/share/keyrings/erlang.gpg
 
-    - name: Add RabbitMQ APT repository (use jammy for noble)
+    - name: Add Erlang repo for jammy (works for noble)
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
-        filename: rabbitmq
+        repo: "deb [signed-by=/usr/share/keyrings/erlang.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
         state: present
+        filename: erlang
         update_cache: yes
 
-    - name: Update apt cache with shell (fallback)
-      shell: apt-get update
-      register: apt_output
-      retries: 3
-      delay: 5
-      until: apt_output.rc == 0
+    - name: Add RabbitMQ signing key
+      shell: |
+        curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq.gpg
+      args:
+        creates: /usr/share/keyrings/rabbitmq.gpg
 
-    - name: Install Erlang and RabbitMQ with retry
+    - name: Add RabbitMQ repo (use jammy for noble)
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
+        state: present
+        filename: rabbitmq
+        update_cache: yes
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Erlang 26 and RabbitMQ
       apt:
         name:
-          - erlang
+          - erlang-base
+          - erlang-asn1
+          - erlang-crypto
+          - erlang-eldap
+          - erlang-ftp
+          - erlang-inets
+          - erlang-mnesia
+          - erlang-os-mon
+          - erlang-parsetools
+          - erlang-public-key
+          - erlang-runtime-tools
+          - erlang-snmp
+          - erlang-ssl
+          - erlang-syntax-tools
+          - erlang-tools
+          - erlang-xmerl
           - rabbitmq-server
         state: present
-      register: install_output
-      retries: 3
-      delay: 10
-      until: install_output is succeeded
 
     - name: Ensure RabbitMQ is started and enabled
       service:
