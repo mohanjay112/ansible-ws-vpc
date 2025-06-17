@@ -8,8 +8,8 @@
   tasks:
     - name: Add Java 8 PPA
       apt_repository:
-      repo: ppa:openjdk-r/ppa
-      state: present
+        repo: ppa:openjdk-r/ppa
+        state: present
 
     - name: Install JDK on Ubuntu 18/20
       apt:
