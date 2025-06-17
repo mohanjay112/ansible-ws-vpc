@@ -18,6 +18,12 @@
           - apt-transport-https
           - lsb-release
         state: present
+        update_cache: yes
+
+    - name: Remove old Erlang APT source if exists
+      file:
+        path: /etc/apt/sources.list.d/erlang.list
+        state: absent
 
     - name: Add Erlang repository key
       shell: |
@@ -49,7 +55,7 @@
       apt:
         update_cache: yes
 
-    - name: Install Erlang 26 and RabbitMQ
+    - name: Install Erlang and RabbitMQ
       apt:
         name:
           - erlang-base
@@ -84,6 +90,12 @@
         dest: /etc/rabbitmq/rabbitmq.config
       notify: Restart RabbitMQ
 
+    - name: Enable management plugin
+      rabbitmq_plugin:
+        names: rabbitmq_management
+        state: enabled
+      notify: Restart RabbitMQ
+
     - name: Create RabbitMQ user
       rabbitmq_user:
         user: test
@@ -94,13 +106,6 @@
         tags:
           - administrator
         state: present
-      notify: Restart RabbitMQ
-
-    - name: Enable management plugin
-      rabbitmq_plugin:
-        names: rabbitmq_management
-        state: enabled
-      notify: Restart RabbitMQ
 
   handlers:
     - name: Restart RabbitMQ
