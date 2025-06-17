@@ -27,16 +27,14 @@
         state: present
 
     - name: Add RabbitMQ public key (Cloudsmith)
-      ansible.builtin.shell: |
+      shell: |
         curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg
-      args: 
-         warn: false
+      
 
     - name: Add Erlang public key
-      ansible.builtin.shell: |
+      shell: |
         curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang-keyring.gpg
-      args:
-        warn: false
+      
 
     - name: Add RabbitMQ and Erlang apt repositories
       apt_repository:
