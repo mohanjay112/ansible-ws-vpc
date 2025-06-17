@@ -1,96 +1,83 @@
 ---
 - name: Install & Setup RabbitMQ with user
   hosts: rmqsrvgrp
-  gather_facts: no
+  become: yes
   tasks:
-    - name: Install Erlang Repository Package
+    - name: Update apt cache (clear and refresh)
       apt:
-        deb: https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
-      tags:
-        - package
+        update_cache: yes
+        cache_valid_time: 3600
 
-    - name: Add an Erlang Solution public Key
+    - name: Install prerequisites
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - gnupg
+
+    - name: Add Erlang solutions repo key
       apt_key:
         url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
         state: present
-      tags:
-        - package
 
-    - name: Install Erlang
-      apt:
-        name: erlang
-        update_cache: yes
-        cache_valid_time: 86400
-        state: present
-      tags:
-        - package
-
-    - name: Add an Apt signing key, uses whichever key is at the URL
+    - name: Add RabbitMQ signing key
       apt_key:
         url: https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
         state: present
-      tags:
-        - package
 
-    - apt_repository:
-        repo: deb https://dl.bintray.com/rabbitmq/debian bionic main
+    - name: Add RabbitMQ and Erlang apt repositories
+      apt_repository:
+        repo: "{{ item }}"
         state: present
-      tags:
-        - package
+      loop:
+        - "deb https://packages.erlang-solutions.com/ubuntu jammy contrib"
+        - "deb https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
 
-    - name: Install Rabbit MQ
+    - name: Refresh apt cache
       apt:
-        name: rabbitmq-server
-        state: present
         update_cache: yes
-      tags:
-        - package
 
+    - name: Install Erlang & RabbitMQ
+      apt:
+        name:
+          - erlang
+          - rabbitmq-server
+        state: present
 
-    - name: Start & Enable RMQ
+    - name: Start & enable RabbitMQ
       service:
         name: rabbitmq-server
         state: started
         enabled: yes
-      tags:
-        - svc
 
-    - name: Config setup
+    - name: Configure RabbitMQ (disable loopback-only)
       copy:
         content: |
           [{rabbit, [{loopback_users, []}]}].
         dest: /etc/rabbitmq/rabbitmq.config
-      notify:
-        - Restart RMQ
-      tags:
-        - conf
+      notify: Restart RabbitMQ
 
-
-    - rabbitmq_user:
+    - name: Create RabbitMQ user
+      rabbitmq_user:
         user: test
         password: test
         configure_priv: .*
         read_priv: .*
         write_priv: .*
-        tags: administrator
+        tags:
+          - administrator
         state: present
-      notify:
-        - Restart RMQ
-      tags:
-        - conf
+      notify: Restart RabbitMQ
 
-
-    - name: Enables the rabbitmq_management plugin
+    - name: Enable management plugin
       rabbitmq_plugin:
         names: rabbitmq_management
         state: enabled
-      notify:
-        - Restart RMQ
-      tags:
-        - package
+      notify: Restart RabbitMQ
 
   handlers:
-    - name: Restart RMQ
+    - name: Restart RabbitMQ
       service:
         name: rabbitmq-server
-        state: restarteda
+        state: restarted
