@@ -16,29 +16,24 @@
         - curl
         - gnupg
 
-    - name: Add Erlang solutions repo key
-      apt_key:
-        url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
-        state: present
-
-    - name: Add RabbitMQ signing key
-      apt_key:
-        url: https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
-        state: present
-
-    - name: Add RabbitMQ public key (Cloudsmith)
-      shell: |
-        curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg
-      
-
-    - name: Add Erlang public key
+    - name: Add Erlang repo key (and save to keyring)
       shell: |
         curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang-keyring.gpg
-      
 
-    - name: Add RabbitMQ and Erlang apt repositories
+    - name: Add RabbitMQ key (Cloudsmith key)
+      shell: |
+        curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+
+    - name: Add Erlang APT repository (force jammy for noble)
       apt_repository:
         repo: "deb [signed-by=/usr/share/keyrings/erlang-keyring.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
+        filename: "erlang"
+        state: present
+
+    - name: Add RabbitMQ APT repository (force jammy for noble)
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
+        filename: "rabbitmq"
         state: present
 
     - name: Refresh apt cache
