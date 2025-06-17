@@ -48,9 +48,19 @@
         line: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
         create: yes
 
-    - name: Refresh apt cache
+    - name: Clean up APT lists to avoid lock issues
+      file:
+        path: /var/lib/apt/lists/lock
+        state: absent
+
+
+    - name: Refresh apt cache with retries
       apt:
         update_cache: yes
+      register: apt_update
+      retries: 3
+      delay: 5
+      until: apt_update is succeeded
 
     - name: Install Erlang & RabbitMQ with retry
       apt:
