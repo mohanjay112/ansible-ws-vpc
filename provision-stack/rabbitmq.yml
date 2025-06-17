@@ -21,6 +21,19 @@
         path: /usr/share/keyrings/erlang-keyring.gpg
         state: absent
 
+    - name: Remove any conflicting Erlang sources
+      shell: |
+        rm -f /etc/apt/sources.list.d/*erlang*.list
+        rm -f /usr/share/keyrings/erlang-keyring.gpg
+      args:
+        warn: false
+
+    - name: Add Erlang GPG key
+      shell: |
+        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang.gpg
+      args:
+        creates: /usr/share/keyrings/erlang.gpg
+
     - name: Add Erlang GPG key
       shell: |
         curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang.gpg
