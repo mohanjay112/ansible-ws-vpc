@@ -27,10 +27,16 @@
         creates: /usr/share/keyrings/erlang-keyring.gpg
 
     - name: Add RabbitMQ key (Cloudsmith key)
-      shell: |
-        curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg
-        args:
-          creates: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+       get_url:
+        url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
+        dest: /tmp/rabbitmq.gpg.key
+
+    - name: Convert RabbitMQ key to keyring format
+      command: gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg /tmp/rabbitmq.gpg.key
+      args:
+        creates: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+
+          
 
 
     - name: Add Erlang APT repository (force jammy for noble)
