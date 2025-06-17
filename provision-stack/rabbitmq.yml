@@ -27,7 +27,7 @@
         creates: /usr/share/keyrings/erlang-keyring.gpg
 
     - name: Add RabbitMQ key (Cloudsmith key)
-       get_url:
+      get_url:
         url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
         dest: /tmp/rabbitmq.gpg.key
 
