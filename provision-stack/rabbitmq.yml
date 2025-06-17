@@ -26,15 +26,9 @@
         rm -f /etc/apt/sources.list.d/*erlang*.list
         rm -f /usr/share/keyrings/erlang-keyring.gpg
 
-    - name: Download Erlang GPG key
-      get_url:
-        url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
-        dest: /usr/share/keyrings/erlang.gpg.asc
-        mode: '0644'
-
-    - name: Convert Erlang GPG key to keyring
-      command: >
-        gpg --dearmor -o /usr/share/keyrings/erlang.gpg /usr/share/keyrings/erlang.gpg.asc
+    - name: Add Erlang GPG key
+      shell: |
+        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang.gpg
       args:
         creates: /usr/share/keyrings/erlang.gpg
 
