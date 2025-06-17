@@ -10,39 +10,34 @@
       debug:
         msg: "OS is {{ ansible_distribution }} {{ ansible_distribution_version }} ({{ ansible_distribution_release }})"
 
+    - name: Ensure keyring directory exists
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
 
     - name: Remove any conflicting Erlang APT source list
       file:
         path: /etc/apt/sources.list.d/erlang-solutions.list
         state: absent
 
-    - name: Remove old Erlang GPG key if exists
+    - name: Remove old Erlang keyring
       file:
         path: /usr/share/keyrings/erlang-keyring.gpg
         state: absent
 
-    - name: Remove any conflicting Erlang sources
+    - name: Add Erlang GPG key (modern method)
       shell: |
-        rm -f /etc/apt/sources.list.d/*erlang*.list
-        rm -f /usr/share/keyrings/erlang-keyring.gpg
-
-    - name: Add Erlang GPG key
-      shell: |
-        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang.gpg
+        curl -fsSL https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | gpg --dearmor -o /etc/apt/keyrings/erlang.gpg
       args:
-        creates: /usr/share/keyrings/erlang.gpg
+        creates: /etc/apt/keyrings/erlang.gpg
 
     - name: Add Erlang repository (use jammy for noble)
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/erlang.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
+        repo: "deb [signed-by=/etc/apt/keyrings/erlang.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
         filename: erlang
         state: present
         update_cache: yes
-
-    - name: Ensure APT cache is updated
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
 
     - name: Install prerequisites
       apt:
@@ -55,20 +50,20 @@
         - apt-transport-https
         - ca-certificates
 
-    - name: Add RabbitMQ official public key
-      get_url:
-        url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
-        dest: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
-        mode: '0644'
+    - name: Add RabbitMQ GPG key (correct location)
+      shell: |
+        curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /etc/apt/keyrings/rabbitmq.gpg
+      args:
+        creates: /etc/apt/keyrings/rabbitmq.gpg
 
     - name: Add RabbitMQ APT repository (use jammy for noble)
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/rabbitmq-archive-keyring.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
+        repo: "deb [signed-by=/etc/apt/keyrings/rabbitmq.gpg] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu jammy main"
         filename: rabbitmq
         state: present
         update_cache: yes
 
-    - name: Update apt cache with shell (fallback)
+    - name: Update apt cache with fallback
       shell: apt-get update
       register: apt_output
       retries: 3
@@ -95,7 +90,6 @@
           - erlang-tools
           - erlang-xmerl
           - rabbitmq-server
-
         state: present
       register: install_output
       retries: 3
