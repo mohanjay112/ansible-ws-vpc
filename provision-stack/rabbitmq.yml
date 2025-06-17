@@ -39,13 +39,12 @@
         state: present
         update_cache: yes
 
-    - name: Refresh apt cache with retries
-      apt:
-        update_cache: yes
-      register: apt_update
+    - name: Update apt cache with shell (fallback)
+      shell: apt-get update
+      register: apt_output
       retries: 3
       delay: 5
-      until: apt_update is succeeded
+      until: apt_output.rc == 0
 
     - name: Install Erlang and RabbitMQ with retry
       apt:
