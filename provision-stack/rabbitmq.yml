@@ -26,22 +26,7 @@
         - apt-transport-https
         - ca-certificates
 
-    # Erlang setup (fixed)
-    - name: Add Erlang Solutions public key
-      get_url:
-        url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
-        dest: /usr/share/keyrings/erlang-keyring.gpg
-        mode: '0644'
-
-    - name: Add Erlang Solutions APT repository (use jammy for noble)
-      apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/erlang-keyring.gpg] https://packages.erlang-solutions.com/ubuntu jammy contrib"
-        filename: erlang
-        state: present
-        update_cache: yes
-
-    # RabbitMQ setup (unchanged)
-    - name: Add RabbitMQ public key
+    - name: Add RabbitMQ official public key
       get_url:
         url: https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key
         dest: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
@@ -54,13 +39,12 @@
         state: present
         update_cache: yes
 
-    - name: Refresh apt cache with retries
-      apt:
-        update_cache: yes
-      register: apt_update
+    - name: Update apt cache with shell (fallback)
+      shell: apt-get update
+      register: apt_output
       retries: 3
       delay: 5
-      until: apt_update is succeeded
+      until: apt_output.rc == 0
 
     - name: Install Erlang and RabbitMQ with retry
       apt:
