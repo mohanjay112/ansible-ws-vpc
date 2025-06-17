@@ -29,6 +29,9 @@
     - name: Add RabbitMQ key (Cloudsmith key)
       shell: |
         curl -fsSL https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.key | gpg --dearmor -o /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+        args:
+          creates: /usr/share/keyrings/rabbitmq-archive-keyring.gpg
+
 
     - name: Add Erlang APT repository (force jammy for noble)
       apt_repository:
